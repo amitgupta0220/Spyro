@@ -12,7 +12,7 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  String city;
+  String city = 'Mumbai';
   Location location = new Location();
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;
@@ -26,6 +26,7 @@ class _HomeTabState extends State<HomeTab> {
 
   temp() async {
     _serviceEnabled = await location.serviceEnabled();
+    // assert(_serviceEnabled != null);
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
@@ -44,9 +45,11 @@ class _HomeTabState extends State<HomeTab> {
     _locationData = await location.getLocation();
     final coordinates =
         new Coordinates(_locationData.latitude, _locationData.longitude);
+    // new Coordinates(_locationData.latitude, _locationData.longitude);
     List<Address> addresses =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    city = addresses.first.locality;
+    city = addresses.first.subLocality;
+    print("this is city " + addresses.first.subLocality);
     setState(() {});
     // Scaffold.of(context).showSnackBar(SnackBar(
     //   content: Text(
@@ -66,16 +69,22 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: MediaQuery.of(context).size.width * 0.138,
+        leadingWidth: MediaQuery.of(context).size.width * 0.15,
         leading: Container(
           margin:
-              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
-          child: SvgPicture.asset(
-            'assets/images/SplashLogo.svg',
+              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.02),
+          child: IconButton(
+            onPressed: () {
+              print(city);
+              temp();
+            },
+            icon: SvgPicture.asset(
+              'assets/images/SplashLogo.svg',
+            ),
           ),
         ),
         title: Text(
-          "Location",
+          city == null ? "Location" : city,
           style: TextStyle(
             color: Colors.white,
             fontSize: 12,
@@ -150,162 +159,119 @@ class _HomeTabState extends State<HomeTab> {
             ),
             Flexible(
               // height: MediaQuery.of(context).size.width * 0.8,
-              child: city == null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: Text("Location Not enabled"),
-                        ),
-                        FlatButton(
-                          onPressed: () {
-                            temp();
-                          },
-                          child: Text("Retry"),
-                        )
-                      ],
-                    )
-                  : StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('stores')
-                          .where('location', isEqualTo: 'Mumbai')
-                          .limit(4)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        List<Widget> storeList = [];
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasData) {
-                          final datas = snapshot.data.docs;
-                          for (var data in datas) {
-                            // print(data);
-                            var location = data.data()['address'];
-                            var category = data.data()['category'];
-                            var name = data.data()['name'];
-                            var rating = data.data()['rating'];
-                            storeList.add(StoreDisplay(
-                              address: location,
-                              category: category,
-                              name: name,
-                              rating: rating,
-                            ));
-                          }
-                          return _permissionGranted == PermissionStatus.granted
-                              ? ListView(
-                                  // physics: NeverScrollableScrollPhysics(),
-                                  primary: false,
-                                  children: <Widget>[
-                                      Container(
-                                        margin: EdgeInsets.only(
-                                            top: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.03,
-                                            left: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.03,
-                                            right: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.03),
-                                        decoration: BoxDecoration(
-                                            color: MyColors.primaryLight,
-                                            borderRadius:
-                                                BorderRadius.circular(4)),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.only(
-                                                left: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.037,
-                                                top: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.04,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  Text("New Discounts",
-                                                      style: TextStyle(
-                                                        color:
-                                                            Color(0xffFFCE47),
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                      )),
-                                                  SizedBox(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.015,
-                                                  ),
-                                                  Text(
-                                                      "20% Off on All\nProducts",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                      ))
-                                                ],
-                                              ),
-                                            ),
-                                            Container(
-                                              padding: EdgeInsets.only(
-                                                top: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.04,
-                                              ),
-                                              alignment: Alignment.bottomRight,
-                                              child: SvgPicture.asset(
-                                                  'assets/images/ellipseForHome.svg'),
-                                            )
-                                          ],
-                                        ),
-                                      ),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('stores')
+                    .where('address', isGreaterThanOrEqualTo: city)
+                    .limit(4)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  List<Widget> storeList = [];
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasData) {
+                    final datas = snapshot.data.docs;
+                    for (var data in datas) {
+                      // print(data);
+                      String location = data.data()['address'];
+                      var category = data.data()['category'];
+                      var name = data.data()['name'];
+                      var rating = data.data()['rating'];
+                      // if (location.contains(city.split(" ")[0]))
+                      storeList.add(StoreDisplay(
+                        address: location,
+                        category: category,
+                        name: name,
+                        rating: rating,
+                      ));
+                    }
+                    return ListView(
+                        // physics: NeverScrollableScrollPhysics(),
+                        primary: false,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.width * 0.03,
+                                left: MediaQuery.of(context).size.width * 0.03,
+                                right:
+                                    MediaQuery.of(context).size.width * 0.03),
+                            decoration: BoxDecoration(
+                                color: MyColors.primaryLight,
+                                borderRadius: BorderRadius.circular(4)),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(
+                                    left: MediaQuery.of(context).size.width *
+                                        0.037,
+                                    top: MediaQuery.of(context).size.width *
+                                        0.04,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("New Discounts",
+                                          style: TextStyle(
+                                            color: Color(0xffFFCE47),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                          )),
                                       SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
-                                                0.02,
+                                                0.015,
                                       ),
-                                      ...storeList.map((e) {
-                                        return e;
-                                      }).toList()
-                                    ])
-                              : Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                    "Enable Location",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Lato'),
+                                      Text("20% Off on All\nProducts",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400,
+                                          ))
+                                    ],
                                   ),
-                                  elevation: 0,
-                                  duration: Duration(milliseconds: 1000),
-                                  backgroundColor: MyColors.primaryLight,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(5),
-                                          topLeft: Radius.circular(5))),
-                                ));
-                        }
-                        return Container();
-                      },
-                    ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.width *
+                                        0.04,
+                                  ),
+                                  alignment: Alignment.bottomRight,
+                                  child: SvgPicture.asset(
+                                      'assets/images/ellipseForHome.svg'),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          ...storeList.map((e) {
+                            return e;
+                          }).toList()
+                        ]);
+                    // : Scaffold.of(context).showSnackBar(SnackBar(
+                    //     content: Text(
+                    //       "Enable Location",
+                    //       style: TextStyle(
+                    //           color: Colors.white, fontFamily: 'Lato'),
+                    //     ),
+                    //     elevation: 0,
+                    //     duration: Duration(milliseconds: 1000),
+                    //     backgroundColor: MyColors.primaryLight,
+                    //     shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.only(
+                    //             topRight: Radius.circular(5),
+                    //             topLeft: Radius.circular(5))),
+                    //   ));
+                  }
+                  return Container();
+                },
+              ),
             ),
           ],
         ),
