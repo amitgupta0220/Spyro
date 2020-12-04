@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">smackit</string>
+    <string name="facebook_app_id">2453038955004324</string>
+    <string name="fb_login_protocol_scheme">fb2453038955004324</string>
+</resources>

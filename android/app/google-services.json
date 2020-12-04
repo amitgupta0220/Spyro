@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "913522058231",
+    "firebase_url": "https://smackit-2020.firebaseio.com",
+    "project_id": "smackit-2020",
+    "storage_bucket": "smackit-2020.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913522058231:android:f9747a50fcb5cacfe004f2",
+        "android_client_info": {
+          "package_name": "com.smackit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913522058231-5jf4030t7n63os22l9h1227uf6uiaj94.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smackit",
+            "certificate_hash": "a4ce7dad0a93849ba10d0f69d086cea78720adb0"
+          }
+        },
+        {
+          "client_id": "913522058231-5hs1bh9j0336rvv6lnemae5mpnegfs1a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smackit",
+            "certificate_hash": "973589a7fbe0a51e10cf369804bbd251b36eaef5"
+          }
+        },
+        {
+          "client_id": "913522058231-bbvo0qee4coajnn8n498h5qjibssj1hn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIJvGk_67093_qazpjJ6binjYEagcN3JI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "913522058231-bbvo0qee4coajnn8n498h5qjibssj1hn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "913522058231-vscteklgg90jliindospss4m4sf2418l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.smackit"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
