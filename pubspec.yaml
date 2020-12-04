@@ -40,7 +40,7 @@ dependencies:
     flutter_map: ^0.10.1+1
     mapbox_search_flutter:
     latlong: ^0.6.1
-    location: ^2.3.5
+    location: 3.0.0
     geolocator: ^5.3.1
     geocoder: ^0.2.1
     # firebase
