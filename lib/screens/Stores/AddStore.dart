@@ -23,7 +23,7 @@ class _AddStoreState extends State<AddStore> {
         backgroundColor: MyColors.primaryLight,
         title: Container(
           margin:
-              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.17),
+              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.145),
           child: Text('Add Store',
               style: TextStyle(color: Colors.white, fontSize: 22)),
         ),
@@ -90,7 +90,7 @@ class _AddStoreState extends State<AddStore> {
                             decoration: InputDecoration(
                               hintStyle: TextStyle(
                                   fontSize: 14, color: Color(0xff9D9D9D)),
-                              hintText: 'Name of you Store',
+                              hintText: 'Name of your Store',
                             ),
                           ),
                         ),

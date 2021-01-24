@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // primarySwatch: Colors.yellow,
-        primaryColor: MyColors.primary,
+        primaryColor: MyColors.primaryLight,
         accentColor: MyColors.secondary,
         cursorColor: MyColors.secondary,
         splashColor: MyColors.primaryLight,

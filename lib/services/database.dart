@@ -46,7 +46,7 @@ class DatabaseService extends DataBase {
       'shopName': user.shopName,
       'address': user.address,
       'website': user.website,
-      'ownerName': user.ownerName,
+      'name': user.ownerName,
       'typeOfBusiness': user.typeOfBusiness
     });
   }
@@ -56,7 +56,7 @@ class DatabaseService extends DataBase {
     DocumentReference userDoc = db.collection('users').doc(user.email);
     await userDoc.set({
       'email': user.email,
-      // 'username': user.username,
+      'name': user.username,
       'email_verified': verified,
       'phone': null,
       'phone_verified': false,

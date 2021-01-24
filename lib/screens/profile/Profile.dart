@@ -1,15 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smackit/Styles.dart';
+import 'package:smackit/screens/Stores/MyReviewsTab.dart';
+import 'package:smackit/screens/Stores/MyStoresTab.dart';
+import 'package:smackit/screens/profile/ProfileEditTab.dart';
 import 'package:smackit/services/authentication.dart';
 import 'package:smackit/LoginRegister/RedirectingPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Profile extends StatefulWidget {
+  final String name, phone, about, location, email;
+  Profile({this.about, this.email, this.location, this.name, this.phone});
   @override
   _ProfileState createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
+  String name, phone, about, locationForProfile, email;
+  // User _user;
+  // FirebaseAuth _auth = FirebaseAuth.instance;
+  // getUser() async {
+  //   _user = _auth.currentUser;
+  //   final userDoc = await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(_user.email)
+  //       .get();
+  //   phone = userDoc.data()['phone'];
+  //   about = userDoc.data()['about'];
+  //   name = userDoc.data()['name'];
+  //   email = _user.email;
+  //   locationForProfile = userDoc.data()['location'];
+  // }
+
+  @override
+  void initState() {
+    super.initState();
+    name = widget.name;
+    phone = widget.phone;
+    about = widget.about;
+    email = widget.email;
+    locationForProfile = widget.location;
+    getOtherData();
+    // getUser();
+  }
+
+  getOtherData() async {
+    DocumentSnapshot documentRefernce =
+        await FirebaseFirestore.instance.collection("users").doc(email).get();
+    locationForProfile = documentRefernce.data()["location"];
+    name = documentRefernce.data()["name"];
+    phone = documentRefernce.data()["phone"];
+    about = documentRefernce.data()["about"];
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +64,7 @@ class _ProfileState extends State<Profile> {
         elevation: 0,
         title: Container(
           margin:
-              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2),
+              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.17),
           child: Text('Profile',
               style: TextStyle(color: Colors.white, fontSize: 22)),
         ),
@@ -30,11 +74,23 @@ class _ProfileState extends State<Profile> {
               'assets/images/pencil.svg',
               height: MediaQuery.of(context).size.width * 0.08,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ProfileEditTab(
+                        onFieldUpdated: onFieldUpdated,
+                        about: about == null ? "About me" : about,
+                        email: email,
+                        location: locationForProfile,
+                        name: name,
+                        phone:
+                            phone == null ? "Enter your phone number" : phone,
+                      )));
+            },
           )
         ],
       ),
       body: Container(
+          // color: MyColors.background,
           child: SingleChildScrollView(
         child: Column(
           children: [
@@ -65,7 +121,7 @@ class _ProfileState extends State<Profile> {
             Center(
               child: Column(
                 children: [
-                  Text('Name',
+                  Text(name,
                       style: TextStyle(
                         color: Color(0xff292929),
                         fontSize: 14,
@@ -84,15 +140,23 @@ class _ProfileState extends State<Profile> {
             Padding(
               padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.09),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset('assets/images/userForProfile.svg'),
+                      Text(
+                        "Name",
+                        style: TextStyle(
+                            color: Color(0xff292929),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.04,
+                        height: MediaQuery.of(context).size.width * 0.04,
                       ),
                       Text(
-                        "Some Name",
+                        name,
                         style: TextStyle(
                             color: Color(0xff292929),
                             fontSize: 14,
@@ -103,14 +167,21 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset('assets/images/phoneForProfile.svg'),
+                      Text(
+                        "Phone",
+                        style: TextStyle(
+                            color: Color(0xff292929),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.04,
+                        height: MediaQuery.of(context).size.width * 0.04,
                       ),
                       Text(
-                        "+91 9999999999",
+                        phone == null ? "Enter you phone number" : phone,
                         style: TextStyle(
                             color: Color(0xff292929),
                             fontSize: 14,
@@ -121,14 +192,21 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset('assets/images/emailForProfile.svg'),
+                      Text(
+                        "Email",
+                        style: TextStyle(
+                            color: Color(0xff292929),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.04,
+                        height: MediaQuery.of(context).size.width * 0.04,
                       ),
                       Text(
-                        "test@test.com",
+                        email == null ? "test@test.com" : email,
                         style: TextStyle(
                             color: Color(0xff292929),
                             fontSize: 14,
@@ -139,14 +217,23 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset('assets/images/locationForProfile.svg'),
+                      Text(
+                        "Location",
+                        style: TextStyle(
+                            color: Color(0xff292929),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.04,
+                        height: MediaQuery.of(context).size.width * 0.04,
                       ),
                       Text(
-                        "Mumbai",
+                        locationForProfile == null
+                            ? "Some location"
+                            : locationForProfile,
                         style: TextStyle(
                             color: Color(0xff292929),
                             fontSize: 14,
@@ -157,14 +244,21 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset('assets/images/aboutForProfile.svg'),
+                      Text(
+                        "About Me",
+                        style: TextStyle(
+                            color: Color(0xff292929),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.04,
+                        height: MediaQuery.of(context).size.width * 0.04,
                       ),
                       Text(
-                        "About me",
+                        about == null ? "About me" : about,
                         style: TextStyle(
                             color: Color(0xff292929),
                             fontSize: 14,
@@ -175,44 +269,56 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: Text(
-                          "My Stores",
-                          style: TextStyle(
-                              color: MyColors.primaryLight,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MyStoresTab()));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                            "My Stores",
+                            style: TextStyle(
+                                color: MyColors.primaryLight,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400),
+                          ),
                         ),
-                      ),
-                      Container(
-                        child:
-                            SvgPicture.asset('assets/images/bagForProfile.svg'),
-                      )
-                    ],
+                        Container(
+                          child: SvgPicture.asset(
+                              'assets/images/bagForProfile.svg'),
+                        )
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: Text(
-                          "My Reviews",
-                          style: TextStyle(
-                              color: MyColors.primaryLight,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MyReviewsTab()));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                            "My Reviews",
+                            style: TextStyle(
+                                color: MyColors.primaryLight,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400),
+                          ),
                         ),
-                      ),
-                      Container(
-                        child: SvgPicture.asset(
-                            'assets/images/reviewForProfile.svg'),
-                      )
-                    ],
+                        Container(
+                          child: SvgPicture.asset(
+                              'assets/images/reviewForProfile.svg'),
+                        )
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
@@ -249,5 +355,13 @@ class _ProfileState extends State<Profile> {
         ),
       )),
     );
+  }
+
+  dynamic onFieldUpdated(List data) {
+    setState(() {
+      this.name = data[0];
+      this.phone = data[1];
+      this.about = data[2];
+    });
   }
 }

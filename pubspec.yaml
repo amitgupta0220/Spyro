@@ -63,7 +63,10 @@ dependencies:
     pin_code_fields: ^5.2.0
     flutter_svg: ^0.18.1
     # file_picker: ^2.1.0
-
+    flutter_chat_bubble: ^1.0.2
+    jiffy: ^3.0.1
+    emoji_picker: ^0.1.0
+    flutter_keyboard_visibility: ^3.2.2
 dev_dependencies:
     flutter_test:
         sdk: flutter

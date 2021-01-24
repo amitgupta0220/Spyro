@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smackit/models/User.dart';
 import 'package:smackit/services/authentication.dart';
-import 'EditProfile.dart';
+import 'EditProfileOld.dart';
 import 'package:smackit/Styles.dart';
 
 class ProfilePage extends StatefulWidget {

@@ -23,6 +23,7 @@ class _CustomerRegistrationPageState extends State<CustomerRegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
+  final _nameController = TextEditingController();
   final _passConfirmController = TextEditingController();
   // final _flipKey = GlobalKey<FlipCardState>();
   Map result;
@@ -44,6 +45,30 @@ class _CustomerRegistrationPageState extends State<CustomerRegistrationPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  Text(
+                    "Name",
+                    style: TextStyle(fontSize: 14, color: Color(0xff222222)),
+                  ),
+                  TextFormField(
+                    style: TextStyle(fontSize: 15),
+                    controller: _nameController,
+                    autocorrect: _autoValidate,
+                    // style: TextStyle(fontSize: 20, fontFamily: 'Roboto'),
+                    keyboardType: TextInputType.name,
+                    // onSaved: (value) => _email = value.trim(),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Enter name';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      hintStyle:
+                          TextStyle(fontSize: 15, color: Color(0xff9D9D9D)),
+                      hintText: 'Name',
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   Text(
                     "Email address",
                     style: TextStyle(fontSize: 14, color: Color(0xff222222)),
@@ -139,6 +164,7 @@ class _CustomerRegistrationPageState extends State<CustomerRegistrationPage> {
                   GestureDetector(
                     onTap: () async {
                       User _user = User(
+                          username: _nameController.text,
                           userType: TypeOfUser.customer,
                           email: _emailController.text,
                           password: _passController.text);

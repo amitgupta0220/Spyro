@@ -48,7 +48,7 @@ class AuthService implements BaseAuth {
             user.setUid(firebaseUser.uid);
             // UserUpdateInfo userInfo = UserUpdateInfo();
             // userInfo.displayName = user.username;
-            // firebaseUser.updateProfile(displayName: user.username);
+            firebaseUser.updateProfile(displayName: user.username);
             // await firebaseUser.sendEmailVerification();
             await db.createUser(user, false);
           } else {
@@ -67,7 +67,7 @@ class AuthService implements BaseAuth {
             seller.setUid(firebaseUser.uid);
             // UserUpdateInfo userInfo = UserUpdateInfo();
             // userInfo.displayName = user.username;
-            // firebaseUser.updateProfile(displayName: user.username);
+            firebaseUser.updateProfile(displayName: seller.ownerName);
             // await firebaseUser.sendEmailVerification();
             await db.createSeller(seller, false);
           }
@@ -157,6 +157,7 @@ class AuthService implements BaseAuth {
                         photoUrl: profile['picture']['data']['url'],
                         userType: TypeOfUser.customer),
                     true);
+                firebaseUser.updateProfile(displayName: profile['name']);
                 // u.UserUpdateInfo userInfo = u.UserUpdateInfo();
                 // userInfo.displayName = profile['name'];
               } catch (e) {

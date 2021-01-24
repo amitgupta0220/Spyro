@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:location/location.dart';
 import 'package:smackit/Styles.dart';
 import 'package:smackit/screens/Stores/addStore.dart';
-import 'package:smackit/screens/chats/ChatPage.dart';
+import 'package:smackit/screens/chats/NavChat.dart';
 import 'package:smackit/screens/profile/Profile.dart';
 import 'package:smackit/screens/Home/HomeTab.dart';
 
@@ -14,10 +16,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String subCity;
+  String city;
+  String name, phoneNo, about, locationForProfile, email;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  Location location = new Location();
+  bool _serviceEnabled = false;
+  // PermissionStatus _permissionGranted;
+  LocationData _locationData;
   int _currentIndex = 0;
   User _user;
-  String type;
+  String type, uid;
   controlTap(index) {
     setState(() {
       _currentIndex = index;
@@ -25,19 +34,85 @@ class _HomePageState extends State<HomePage> {
   }
 
   getUser() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // subCity = prefs.getString('subCity');
     _user = _auth.currentUser;
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(_user.email)
         .get();
+    phoneNo = userDoc.data()['phone'];
+    about = userDoc.data()['about'];
+    name = userDoc.data()['name'];
+    email = _user.email;
+    locationForProfile = userDoc.data()['location'];
     type = userDoc.data()['userType'] == 'customer' ? 'users' : 'seller';
+    uid = _user.uid;
     setState(() {});
-    print("this is type" + _user.email);
+    print("this is type " + type);
+  }
+
+  getLocation() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    _serviceEnabled = await location.serviceEnabled();
+    // assert(_serviceEnabled != null);
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    // _permissionGranted = await location.hasPermission();
+    // if (_permissionGranted == PermissionStatus.denied) {
+    //   _permissionGranted = await location.requestPermission();
+    //   if (_permissionGranted != PermissionStatus.granted) {
+    //     return;
+    //   }
+    // }
+
+    _locationData = await location.getLocation();
+    final coordinates =
+        new Coordinates(_locationData.latitude, _locationData.longitude);
+    // new Coordinates(_locationData.latitude, _locationData.longitude);
+    List<Address> addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    // prefs.setString("subCity", addresses.first.subLocality);
+    setState(() {
+      subCity = addresses.first.subLocality;
+      if (subCity.contains(" ")) {
+        subCity = subCity.split(" ")[0];
+      } else if (subCity.contains("(")) {
+        subCity = subCity.split("(")[0];
+      } else if (subCity.contains("[")) {
+        subCity = subCity.split("[")[0];
+      }
+      city = addresses.first.subAdminArea;
+      locationForProfile = subCity + "," + city;
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(email)
+          .update({"location": locationForProfile});
+      print("this is subCity " + addresses.first.subLocality);
+    });
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text(
+    //     _locationData.longitude.toString(),
+    //     style: TextStyle(color: Colors.white, fontFamily: 'Lato'),
+    //   ),
+    //   elevation: 0,
+    //   duration: Duration(milliseconds: 1000),
+    //   backgroundColor: MyColors.primaryLight,
+    //   shape: RoundedRectangleBorder(
+    //       borderRadius: BorderRadius.only(
+    //           topRight: Radius.circular(5), topLeft: Radius.circular(5))),
+    // ));
   }
 
   void initState() {
     super.initState();
     getUser();
+    getLocation();
   }
 
   Future<bool> alert() {
@@ -75,12 +150,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _children = [
-      HomeTab(),
+      HomeTab(subCity: subCity, city: city),
       AddStore(),
-      ChatPage(
+      // ChatPage(
+      //   type: type,
+      //   uid: uid,
+      // ),
+      NavChat(
         type: type,
+        uid: uid,
       ),
-      Profile(),
+      Profile(
+        about: about,
+        email: email,
+        location: locationForProfile,
+        name: name,
+        phone: phoneNo,
+      ),
     ];
     return WillPopScope(
       onWillPop: () {
@@ -117,7 +203,134 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: _children[_currentIndex],
+        body: _serviceEnabled && subCity != null
+            ? _children[_currentIndex]
+            // // : Center(
+            // //     child: Column(
+            // //       mainAxisAlignment: MainAxisAlignment.center,
+            // //       children: [
+            // //         Text("Location not enabled"),
+            // //         FlatButton(
+            // //             child: Text("Tap to retry"),
+            // //             onPressed: () {
+            // //               Navigator.of(context).pushReplacement(
+            // //                   MaterialPageRoute(
+            // //                       builder: (context) => HomePage()));
+            // //             }),
+            // //         CircularProgressIndicator(),
+            //       ],
+            : Scaffold(
+                appBar: AppBar(
+                  leadingWidth: MediaQuery.of(context).size.width * 0.15,
+                  leading: Container(
+                    margin: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.02),
+                    child: IconButton(
+                      onPressed: () {
+                        print(subCity);
+                        // temp();
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/images/SplashLogo.svg',
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    subCity == null ? "Location" : subCity,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.underline,
+                      // decorationStyle: TextDecorationStyle.dashed
+                    ),
+                  ),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                          right: MediaQuery.of(context).size.width * 0.05),
+                      child:
+                          SvgPicture.asset('assets/images/rewardForHome.svg'),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          right: MediaQuery.of(context).size.width * 0.05),
+                      child: SvgPicture.asset('assets/images/bellForHome.svg'),
+                    ),
+                  ],
+                  elevation: 0,
+                  backgroundColor: MyColors.primaryLight,
+                ),
+                backgroundColor: MyColors.primary,
+                body: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                        // mainAxisAlignment:MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            color: MyColors.primaryLight,
+                            height: MediaQuery.of(context).size.height * 0.085,
+                            width: MediaQuery.of(context).size.width,
+                            child: Container(
+                              margin: EdgeInsets.only(
+                                left: MediaQuery.of(context).size.width * 0.05,
+                                right: MediaQuery.of(context).size.width * 0.05,
+                                bottom:
+                                    MediaQuery.of(context).size.width * 0.03,
+                              ),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4)),
+                              child: Row(
+                                // mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                        left:
+                                            MediaQuery.of(context).size.width *
+                                                0.03,
+                                        right:
+                                            MediaQuery.of(context).size.width *
+                                                0.03),
+                                    child: SvgPicture.asset(
+                                        'assets/images/searchForHome.svg'),
+                                  ),
+                                  Flexible(
+                                    child: TextFormField(
+                                      enabled: false,
+                                      // controller: _searchController,
+                                      keyboardType: TextInputType.name,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        hintStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff9D9D9D)),
+                                        hintText:
+                                            'Search for food, hardware, pets...',
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Text("Location not enabled"),
+                          FlatButton(
+                              child: Text("Tap to retry"),
+                              onPressed: () {
+                                // Navigator.of(context).pushReplacement(
+                                //     MaterialPageRoute(
+                                //         builder: (context) => HomePage()));
+                                getLocation();
+                              }),
+                          CircularProgressIndicator(),
+                        ])),
+              ),
       ),
     );
   }

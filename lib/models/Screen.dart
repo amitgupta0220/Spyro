@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import '../screens/chats/Chats.dart';
+import 'package:smackit/screens/chats/ChatsOld.dart';
 import '../screens/profile/ProfileOld.dart';
 import '../screens/Map.dart';
 import '../screens/Home.dart';
